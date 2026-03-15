@@ -1,0 +1,90 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+.flattened-pom.xml
+
+# IDE - IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+*.ids
+*.orig
+out/
+
+# IDE - Eclipse
+.classpath
+.project
+.c9/
+*.launch
+.settings/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# IDE - VS Code
+.vscode-test
+
+# IDE - Other
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.classpath
+.c9/
+*.class
+*.jar
+*.war
+
+# Mac
+.DS_Store
+
+# Misc
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Build output
+bin/
+build/
+
+# SonarQube
+.scannerwork/
+
+# Spotbugs
+.spotbugs/
+
+# Gradle (if used)
+.gradle
+/build/
+
+# Node/npm (for future frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Generated files
+*.class
+*.jar
+*.war
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Git
+.git/
+.gitkeep
