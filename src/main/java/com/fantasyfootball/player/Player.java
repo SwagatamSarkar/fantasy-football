@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.fantasyfootball.team.Team;
+
 @Entity
 @Table(name = "player")
 @Data
@@ -36,4 +38,8 @@ public class Player {
     public enum Position {
         GOALKEEPER, DEFENDER, MIDFIELDER, FORWARD
     }
+
+    @ManyToMany(mappedBy = "players", fetch = FetchType.LAZY)
+    private java.util.List<Team> teams;
+
 }

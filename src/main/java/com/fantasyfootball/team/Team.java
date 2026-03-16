@@ -1,21 +1,22 @@
-package com.fantasyfootball.league;
+package com.fantasyfootball.team;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.fantasyfootball.team.Team;
+import com.fantasyfootball.league.League;
+import com.fantasyfootball.player.Player;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "league")
+@Table(name = "team")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class League {
+public class Team {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,30 +26,31 @@ public class League {
     private String name;
     
     @Column(nullable = false)
-    private String description;
+    private String managerName;
     
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private LeagueStatus status;
+    private Integer budget;
     
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "started_at")
-    private LocalDateTime startedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "league_id", nullable = false)
+    private League league;
     
-    @OneToMany(mappedBy = "league", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Team> teams;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "team_player",
+        joinColumns = @JoinColumn(name = "team_id"),
+        inverseJoinColumns = @JoinColumn(name = "player_id")
+    )
+    private List<Player> players;
     
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (status == null) {
-            status = LeagueStatus.DRAFT;
+        if (budget == null) {
+            budget = 100;
         }
-    }
-    
-    public enum LeagueStatus {
-        DRAFT, ACTIVE, COMPLETED
     }
 }
