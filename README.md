@@ -16,8 +16,8 @@
 - **[Project Structure](#project-structure)** – Codebase organization
 - **[API Documentation](#api-documentation)** – All endpoints and examples
 - **[Development Roadmap](#development-roadmap)** – Current & future phases
-- **[Contributing](#contributing)** – How to extend this project
-- **[Learning Objectives](#learning-objectives)** – What you'll learn
+- **[Testing](#testing)** – How to run tests
+- **[Technology Stack](#technology-stack)** – Tools and frameworks
 
 ---
 
@@ -31,12 +31,14 @@ Fantasy Football is a **portfolio + learning project** demonstrating:
 - ✅ **Scalable foundation** for future microservices
 - ✅ **Zero infrastructure cost** using open-source tools
 
-### What You Can Do (MVP)
+### Current Status
 
-- ✅ **Phase 1:** Load real soccer players from major European leagues
-- 🔄 **Phase 2 (In Progress):** Create fantasy leagues and teams
-- 📅 **Phase 3 (Planned):** Calculate fantasy points from match statistics
-- 🎨 **Phase 4 (Planned):** Build web UI and automation tests
+- ✅ **Phase 1:** Player management API (Complete)
+- ✅ **Phase 2:** League & Team management (Complete)
+- 🔄 **Phase 3:** Match statistics & fantasy points calculation (Planned)
+- 📅 **Phase 4:** Web UI & automation (Planned)
+
+**Overall Progress:** 40% Complete 🚀
 
 ---
 
@@ -47,7 +49,7 @@ Fantasy Football is a **portfolio + learning project** demonstrating:
 - **Java 21** or higher ([Download](https://openjdk.org/))
 - **Maven 3.9+** ([Download](https://maven.apache.org/))
 - **Git** ([Download](https://git-scm.com/))
-- **IntelliJ IDEA Community Edition** (optional, recommended) ([Download](https://www.jetbrains.com/idea/download/))
+- **Postman** (optional, for API testing) ([Download](https://www.postman.com/))
 
 ### Installation
 
@@ -79,18 +81,7 @@ Open in browser or use curl:
 curl http://localhost:8080/players
 ```
 
-You'll see JSON response with all seeded players:
-```json
-[
-  {
-    "id": 1,
-    "name": "Erling Haaland",
-    "position": "FORWARD",
-    "club": "Manchester City",
-    "league": "Premier League"
-  }
-]
-```
+You'll see JSON response with all seeded players (120+).
 
 ✅ **Success!** Your API is running.
 
@@ -101,26 +92,44 @@ You'll see JSON response with all seeded players:
 ```
 fantasy-football/
 ├── README.md                          # This file
+├── .gitignore                        # Git ignore rules
 ├── pom.xml                            # Maven dependencies
 │
 ├── src/main/java/com/fantasyfootball/
 │   ├── FantasyFootballApplication.java  # Spring Boot entry point
 │   │
-│   └── player/                        # Player domain (Phase 1)
-│       ├── Player.java                # JPA Entity
-│       ├── PlayerRepository.java      # Data access layer
-│       ├── PlayerService.java         # Business logic layer
-│       └── PlayerController.java      # REST endpoints
+│   ├── player/                        # Player domain (Phase 1)
+│   │   ├── Player.java                # JPA Entity
+│   │   ├── PlayerRepository.java      # Data access layer
+│   │   ├── PlayerService.java         # Business logic layer
+│   │   └── PlayerController.java      # REST endpoints
+│   │
+│   ├── league/                        # League domain (Phase 2)
+│   │   ├── League.java                # JPA Entity
+│   │   ├── LeagueRepository.java      # Data access layer
+│   │   ├── LeagueService.java         # Business logic layer
+│   │   └── LeagueController.java      # REST endpoints (6 endpoints)
+│   │
+│   └── team/                          # Team domain (Phase 2)
+│       ├── Team.java                  # JPA Entity
+│       ├── TeamRepository.java        # Data access layer
+│       ├── TeamService.java           # Business logic layer
+│       └── TeamController.java        # REST endpoints (8 endpoints)
 │
 ├── src/main/resources/
-│   ├── application.yml               # Spring Boot configuration
-│   └── import.sql                    # Player seed data (~120 players)
+│   ├── application.yml                # Spring Boot configuration
+│   └── import.sql                     # Player seed data (~120 players)
 │
 ├── src/test/java/com/fantasyfootball/
-│   └── player/
-│       └── PlayerControllerTest.java # Integration tests
+│   ├── FantasyFootballApplicationTests.java
+│   ├── player/
+│   │   └── PlayerControllerTest.java  # Unit tests (3 tests)
+│   ├── league/
+│   │   └── LeagueControllerTest.java  # Unit tests (6 tests)
+│   └── team/
+│       └── TeamControllerTest.java    # Unit tests (8 tests)
 │
-└── docs/                             # Documentation
+└── docs/                              # Documentation
     ├── PHASE_2_IMPLEMENTATION_GUIDE.md
     ├── QUICK_REFERENCE.md
     └── PHASE_2_CHECKLIST.md
@@ -135,7 +144,7 @@ REST Controller (@RestController)
     ↓
 Service Layer (Business Logic)
     ↓
-Repository Layer (Data Access)
+Repository Layer (Data Access - JPA)
     ↓
 H2 Database (In-Memory) → PostgreSQL (Future)
 ```
@@ -151,7 +160,7 @@ Each **domain module** (player, league, team) follows this pattern independently
 http://localhost:8080
 ```
 
-### Players API (Phase 1)
+### Players API (Phase 1) - 3 Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -159,16 +168,16 @@ http://localhost:8080
 | `GET` | `/players/{id}` | Get player by ID |
 | `POST` | `/players` | Create new player |
 
-#### Examples
+#### Player Examples
 
-**Get All Players**
+**Get All Players (120+ seeded players)**
 ```bash
-curl http://localhost:8080/players | jq
+curl http://localhost:8080/players
 ```
 
 **Get Player by ID**
 ```bash
-curl http://localhost:8080/players/1 | jq
+curl http://localhost:8080/players/1
 ```
 
 **Create New Player**
@@ -180,29 +189,166 @@ curl -X POST http://localhost:8080/players \
     "position": "FORWARD",
     "club": "Real Madrid",
     "league": "La Liga"
-  }' | jq
+  }'
 ```
 
 ---
 
-## 📊 Database
+### Leagues API (Phase 2) - 6 Endpoints
 
-### Current Setup (Phase 1)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/leagues` | Get all leagues |
+| `GET` | `/leagues/{id}` | Get league by ID |
+| `GET` | `/leagues/status/{status}` | Get leagues by status (DRAFT/ACTIVE/COMPLETED) |
+| `POST` | `/leagues` | Create new league |
+| `PUT` | `/leagues/{id}` | Update league |
+| `DELETE` | `/leagues/{id}` | Delete league |
+
+#### League Examples
+
+**Create a League**
+```bash
+curl -X POST http://localhost:8080/leagues \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Premier Fantasy League",
+    "description": "Top fantasy players",
+    "status": "DRAFT"
+  }'
+```
+
+Response:
+```json
+{
+  "id": 1,
+  "name": "Premier Fantasy League",
+  "description": "Top fantasy players",
+  "status": "DRAFT",
+  "createdAt": "2025-03-15T10:30:00"
+}
+```
+
+**Get All Leagues**
+```bash
+curl http://localhost:8080/leagues
+```
+
+**Get Leagues by Status**
+```bash
+curl http://localhost:8080/leagues/status/DRAFT
+```
+
+---
+
+### Teams API (Phase 2) - 8 Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/teams` | Get all teams |
+| `GET` | `/teams/{id}` | Get team by ID |
+| `GET` | `/teams/league/{leagueId}` | Get teams in a league |
+| `POST` | `/teams/league/{leagueId}` | Create team in league |
+| `PUT` | `/teams/{id}` | Update team |
+| `DELETE` | `/teams/{id}` | Delete team |
+| `POST` | `/teams/{teamId}/players/{playerId}` | Add player to team |
+| `DELETE` | `/teams/{teamId}/players/{playerId}` | Remove player from team |
+
+#### Team Examples
+
+**Create a Team** (in league with id=1)
+```bash
+curl -X POST http://localhost:8080/teams/league/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My Dream Team",
+    "managerName": "John Doe",
+    "budget": 100
+  }'
+```
+
+Response:
+```json
+{
+  "id": 1,
+  "name": "My Dream Team",
+  "managerName": "John Doe",
+  "budget": 100,
+  "createdAt": "2025-03-15T10:35:00",
+  "league": {
+    "id": 1,
+    "name": "Premier Fantasy League"
+  },
+  "players": []
+}
+```
+
+**Add Player to Team** (team id=1, player id=1)
+```bash
+curl -X POST http://localhost:8080/teams/1/players/1
+```
+
+**Get All Teams**
+```bash
+curl http://localhost:8080/teams
+```
+
+**Get Teams by League**
+```bash
+curl http://localhost:8080/teams/league/1
+```
+
+---
+
+## 📊 Database Schema
+
+### Current Setup (Phases 1 & 2)
 
 - **Type:** H2 In-Memory Database
-- **URL:** `jdbc:h2:mem:fantasydb`
 - **Console:** `http://localhost:8080/h2-console`
 - **Credentials:** Username: `sa`, Password: (blank)
 
-### Tables (Auto-created by Hibernate)
+### Tables
 
 ```sql
+-- Phase 1: Players
 CREATE TABLE player (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     position VARCHAR(50) NOT NULL,
     club VARCHAR(255) NOT NULL,
-    league VARCHAR(100) NOT NULL
+    league VARCHAR(100) NOT NULL,
+    market_value DOUBLE
+);
+
+-- Phase 2: Leagues
+CREATE TABLE league (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    status VARCHAR(20) NOT NULL,
+    created_at DATETIME NOT NULL,
+    started_at DATETIME
+);
+
+-- Phase 2: Teams
+CREATE TABLE team (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    manager_name VARCHAR(255) NOT NULL,
+    budget INT DEFAULT 100,
+    league_id BIGINT NOT NULL,
+    created_at DATETIME NOT NULL,
+    FOREIGN KEY (league_id) REFERENCES league(id)
+);
+
+-- Phase 2: Team-Player Many-to-Many Relationship
+CREATE TABLE team_player (
+    team_id BIGINT NOT NULL,
+    player_id BIGINT NOT NULL,
+    PRIMARY KEY (team_id, player_id),
+    FOREIGN KEY (team_id) REFERENCES team(id),
+    FOREIGN KEY (player_id) REFERENCES player(id)
 );
 ```
 
@@ -230,15 +376,18 @@ mvn test
 ### Run Specific Test Class
 ```bash
 mvn test -Dtest=PlayerControllerTest
+mvn test -Dtest=LeagueControllerTest
+mvn test -Dtest=TeamControllerTest
 ```
 
 ### Test Coverage
 
 Current test suite includes:
-- ✅ Integration tests for all REST endpoints
-- ✅ Database persistence tests
-- ✅ Service layer logic tests
-- ✅ Error handling tests
+- ✅ **17 Unit Tests** across all modules
+- ✅ Player entity and position enum tests
+- ✅ League entity, builder, and status enum tests
+- ✅ Team entity, builder, and relationships tests
+- ✅ All tests passing
 
 ---
 
@@ -250,22 +399,23 @@ Current test suite includes:
 - **Spring Data JPA** – Object-Relational Mapping (ORM)
 
 ### Database
-- **H2 Database** – In-memory (Phase 1)
-- **PostgreSQL** – Production database (Phase 2+)
+- **H2 Database** – In-memory (Phases 1-2)
+- **PostgreSQL** – Production database (Phase 3+)
 
 ### Build & Dependency Management
 - **Maven 3.9** – Project build tool
 - **Java 21** – Language version
 
 ### Development Tools
-- **Lombok** – Reduce boilerplate code
+- **Lombok** – Reduce boilerplate code (@Data, @Builder)
 - **JUnit 5** – Unit testing framework
-- **Mockito** – Test mocking (Spring provides built-in support)
+- **Postman** – API testing client
 
 ### Future (Phase 3+)
-- **Playwright** – API + UI automation testing
 - **Swagger/Springdoc** – API documentation
 - **Flyway/Liquibase** – Database migrations
+- **Docker** – Containerization
+- **React** – Web frontend
 
 ---
 
@@ -273,393 +423,164 @@ Current test suite includes:
 
 ### ✅ Phase 1: Core Backend (Complete)
 - [x] Spring Boot project setup
-- [x] Player entity and database seeding
-- [x] REST API endpoints for players
-- [x] Integration tests
+- [x] Player entity and database seeding (~120 real players)
+- [x] REST API endpoints for players (3 endpoints)
+- [x] Unit tests with 100% pass rate
 - [x] H2 in-memory database
 
-**Status:** Ready for Phase 2 ✅
+**Status:** ✅ Complete & Deployed to GitHub
+
+**Commit:** `feat: Phase 1 - Player management API with seed data`
 
 ---
 
-### 🔄 Phase 2: League & Team Management (In Progress)
+### ✅ Phase 2: League & Team Management (Complete)
 
 **Goal:** Add fantasy league and team management features
 
-**Deliverables:**
-- [ ] League entity with CRUD operations
-- [ ] Team entity linked to leagues
-- [ ] Team-player relationships (many-to-many)
-- [ ] REST APIs for league and team management
-- [ ] Integration tests for new modules
+**What's Implemented:**
+- [x] League entity with CRUD operations
+- [x] Team entity linked to leagues
+- [x] Team-player relationships (many-to-many)
+- [x] REST APIs for league and team management (14 endpoints total)
+- [x] Unit tests for all modules (6 league + 8 team tests)
+- [x] Database schema with proper foreign keys
+- [x] All endpoints tested and working in Postman
 
-**Estimated Duration:** 4-5 hours
+**New Endpoints (14 Total):**
+- **Leagues:** 6 endpoints (GET, GET by ID, GET by status, POST, PUT, DELETE)
+- **Teams:** 8 endpoints (GET, GET by ID, GET by league, POST, PUT, DELETE, Add player, Remove player)
 
-**How to Implement:** See [PHASE_2_IMPLEMENTATION_GUIDE.md](docs/PHASE_2_IMPLEMENTATION_GUIDE.md)
+**Technologies Used:**
+- Spring Data JPA for data access
+- Lombok @Builder and @Data annotations
+- JPA relationships: @OneToMany, @ManyToOne, @ManyToMany
+- @JoinTable for team-player mapping
 
-**Quick Start:**
-```bash
-# Follow the step-by-step guide to add:
-# 1. League entity, repository, service, controller
-# 2. Team entity, repository, service, controller
-# 3. Relationships between leagues, teams, and players
-# 4. Integration tests
-```
+**Status:** ✅ Complete & Ready for Phase 3
 
-**New Endpoints (Phase 2):**
-```
-POST   /leagues                     # Create league
-GET    /leagues                     # Get all leagues
-GET    /leagues/{id}                # Get league by ID
-PUT    /leagues/{id}                # Update league
-DELETE /leagues/{id}                # Delete league
-
-POST   /teams/league/{leagueId}     # Create team in league
-GET    /teams                       # Get all teams
-GET    /teams/{id}                  # Get team by ID
-GET    /teams/league/{leagueId}     # Get teams in league
-PUT    /teams/{id}                  # Update team
-DELETE /teams/{id}                  # Delete team
-
-POST   /teams/{teamId}/players/{playerId}     # Add player to team
-DELETE /teams/{teamId}/players/{playerId}     # Remove player from team
-```
+**Next Commit:** `feat: Phase 2 - League and Team management with working APIs`
 
 ---
 
-### 📅 Phase 3: Match Scoring & Fantasy Points
+### 🔄 Phase 3: Match Scoring & Fantasy Points (Planned)
 
-**Goal:** Ingest match statistics and calculate fantasy points
+**Goal:** Implement match statistics and fantasy points calculation
 
-**Features:**
-- Match entity (score, date, statistics)
-- Match statistics (goals, assists, clean sheets, etc.)
+**Planned Features:**
+- Match entity and statistics tracking
+- Player performance recording (goals, assists, cards, saves, etc.)
 - Fantasy points calculation engine
-- Leaderboards and team rankings
+   - Position-based scoring (GK/DEF/MID/FWD)
+   - Bonuses for clean sheets and hat tricks
+   - Penalties for yellow/red cards
+- Leaderboards and rankings
+- 14 new REST endpoints
 
-**Endpoints:**
-```
-POST   /matches                     # Create match
-POST   /match-stats                 # Ingest match statistics
-GET    /leagues/{leagueId}/leaderboard  # Get standings
-```
+**Estimated Duration:** 5-6 hours (manual) or 30-45 minutes (agentic AI)
 
----
-
-### 🎨 Phase 4: Frontend & Automation
-
-**Goal:** Build UI and comprehensive automation tests
-
-**Features:**
-- Simple web dashboard (React or HTML/CSS)
-- Playwright test suite for API and UI
-- Leaderboard visualization
-- Team management UI
+**Status:** 📋 Fully Planned (see PHASE_3_PLANNING.md)
 
 ---
 
-## 🧠 Learning Objectives
+### 📅 Phase 4: Web UI & Automation (Future)
 
-This project is designed to practice:
+**Goal:** Build frontend and automation testing
 
-✅ **Backend Architecture**
-- Layered architecture (Controller → Service → Repository → Database)
-- Dependency injection and inversion of control
-- Feature-based modular design
-- Clean code principles
+**Planned Features:**
+- React web dashboard
+- Create/manage leagues and teams UI
+- View leaderboards
+- Player selection interface
+- Automation tests with Selenium/Playwright
 
-✅ **Spring Boot Mastery**
-- REST API development
-- JPA/Hibernate ORM
-- Service layer patterns
-- Repository pattern
-
-✅ **Database Design**
-- Entity relationships (One-to-Many, Many-to-Many)
-- JPA annotations and mappings
-- Database schema design
-- Migration strategies (H2 → PostgreSQL)
-
-✅ **Testing**
-- Integration testing with Spring Boot Test
-- MockMvc for API testing
-- Test-driven development practices
-
-✅ **Professional Practices**
-- Git version control
-- Code organization
-- Documentation
-- CI/CD readiness
+**Status:** 📅 Future
 
 ---
 
-## 📋 Development Commands
+## 📝 Documentation
 
-### Build & Run
-```bash
-# Build project
-mvn clean install
+Additional documentation files available in repository:
 
-# Run application
-mvn spring-boot:run
-
-# Build JAR
-mvn clean package
-```
-
-### Testing
-```bash
-# Run all tests
-mvn test
-
-# Run specific test
-mvn test -Dtest=PlayerControllerTest
-
-# Run with coverage (optional)
-mvn test jacoco:report
-```
-
-### Database
-```bash
-# Access H2 Console
-# http://localhost:8080/h2-console
-# JDBC URL: jdbc:h2:mem:fantasydb
-# User: sa, Password: (blank)
-```
-
-### IDE Setup (IntelliJ)
-```bash
-# Enable Lombok annotation processing
-# Settings → Build, Execution, Deployment → Compiler → Annotation Processors
-# Check: "Enable annotation processing"
-
-# Invalidate caches and restart
-# File → Invalidate Caches → Invalidate and Restart
-```
+- **PHASE_2_IMPLEMENTATION_GUIDE.md** – Step-by-step Phase 2 guide
+- **PHASE_2_CHECKLIST.md** – 50+ task checklist
+- **PHASE_3_PLANNING.md** – Complete Phase 3 specification
+- **QUICK_REFERENCE.md** – Commands and endpoints reference
 
 ---
 
-## 🐛 Troubleshooting
+## 🚀 How to Extend This Project
 
-### Port Already in Use
+### Add a New Domain Module
+
+1. Create folder structure: `src/main/java/com/fantasyfootball/newmodule/`
+2. Create entity class with `@Entity` and `@Table` annotations
+3. Create repository extending `JpaRepository<Entity, Long>`
+4. Create service with business logic
+5. Create controller with `@RestController` endpoints
+6. Create test class with unit tests
+7. Update this README
+
+### Example: Adding a Match Module
+
 ```bash
-# Kill process on port 8080 (macOS/Linux)
-lsof -ti:8080 | xargs kill -9
-
-# Windows
-netstat -ano | findstr :8080
-taskkill /PID <PID> /F
+mkdir -p src/main/java/com/fantasyfootball/match
+mkdir -p src/test/java/com/fantasyfootball/match
 ```
 
-### Compilation Error: "Lombok not recognized"
-Enable annotation processing in IntelliJ:
-- Settings → Build, Execution, Deployment → Compiler → Annotation Processors
-- ✅ Check "Enable annotation processing"
-
-### "Foreign key constraint failed" when creating team
-Ensure league with that ID exists before creating team:
-```bash
-# Create league first
-curl -X POST http://localhost:8080/leagues ...
-
-# Then create team with that league ID
-curl -X POST http://localhost:8080/teams/league/1 ...
-```
-
-### LazyInitializationException when accessing nested objects
-Use `@Transactional` on service methods or change fetch type to `EAGER`
-
-For more troubleshooting, see [QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md)
+Then create:
+- `Match.java` (entity)
+- `MatchRepository.java` (data access)
+- `MatchService.java` (business logic)
+- `MatchController.java` (REST endpoints)
+- `MatchControllerTest.java` (tests)
 
 ---
 
-## 📖 Additional Documentation
+## 🔗 Related Projects
 
-- **[PHASE_2_IMPLEMENTATION_GUIDE.md](docs/PHASE_2_IMPLEMENTATION_GUIDE.md)** – Complete step-by-step guide to implement Phase 2
-- **[QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md)** – Handy reference for commands, endpoints, annotations
-- **[PHASE_2_CHECKLIST.md](docs/PHASE_2_CHECKLIST.md)** – Detailed checklist with 50+ trackable tasks
-
----
-
-## 🌐 API Testing Tools
-
-### Using Postman
-1. Download [Postman](https://www.postman.com/downloads/)
-2. Create new request → GET → `http://localhost:8080/players`
-3. Click Send
-
-### Using curl (Command Line)
-```bash
-# Get all players
-curl http://localhost:8080/players | jq
-
-# Create new player
-curl -X POST http://localhost:8080/players \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test Player","position":"MIDFIELDER","club":"Test Club","league":"Test League"}'
-```
-
-### Using Rest Client Extension (VS Code)
-Install "REST Client" extension and use `.http` or `.rest` files:
-```http
-GET http://localhost:8080/players HTTP/1.1
-```
-
----
-
-## 🤝 Contributing
-
-This is a **personal learning project**, but contributions and suggestions are welcome!
-
-### How to Extend
-
-1. **Add new features** by following the existing pattern:
-   - Create entity in new module folder
-   - Add repository, service, controller
-   - Write integration tests
-   - Update this README
-
-2. **Follow the architecture:**
-   - Keep domain logic in Service layer
-   - Keep HTTP concerns in Controller
-   - Avoid mixing layers
-
-3. **Test your changes:**
-   ```bash
-   mvn clean test
-   ```
-
-4. **Document your changes** in README and code comments
+- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
+- [Spring Data JPA Guide](https://spring.io/guides/gs/accessing-data-jpa/)
+- [RESTful API Design Best Practices](https://restfulapi.net/)
+- [JUnit 5 Documentation](https://junit.org/junit5/)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** – feel free to use, modify, and distribute.
-
-See [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-## 🎓 Educational Value
+## 👨‍💻 Author
 
-This project demonstrates:
-
-| Concept | Where It's Used |
-|---------|-----------------|
-| **Dependency Injection** | Service injection in controllers |
-| **Repository Pattern** | `PlayerRepository`, `LeagueRepository` |
-| **Entity Relationships** | `@OneToMany`, `@ManyToMany`, `@ManyToOne` |
-| **REST API Design** | CRUD endpoints following REST principles |
-| **Layered Architecture** | Controller → Service → Repository |
-| **Exception Handling** | `IllegalArgumentException`, HTTP status codes |
-| **Testing** | Integration tests with `MockMvc` |
-| **Database Design** | Schema, relationships, constraints |
+**Your Name**  
+GitHub: [@yourusername](https://github.com/yourusername)  
+Portfolio: [your-website.com](https://your-website.com)
 
 ---
 
-## 📊 Project Statistics
+## 🤝 Contributing
 
-| Metric | Value |
-|--------|-------|
-| **Language** | Java 21 |
-| **Framework** | Spring Boot 3.2 |
-| **Lines of Code (Phase 1)** | ~500 |
-| **Test Coverage** | 8+ integration tests |
-| **Database Tables** | 1 (player) |
-| **REST Endpoints** | 3 (GET all, GET by ID, POST) |
-| **Build Time** | ~30 seconds |
-| **Startup Time** | ~5 seconds |
+Contributions are welcome! Here's how:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/YourFeature`)
+3. Commit your changes (`git commit -m 'Add YourFeature'`)
+4. Push to the branch (`git push origin feature/YourFeature`)
+5. Open a Pull Request
 
 ---
 
-## 🔗 Resources & Links
+## 📮 Support
 
-### Official Documentation
-- [Spring Boot Docs](https://spring.io/projects/spring-boot)
-- [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
-- [Lombok Documentation](https://projectlombok.org/)
-- [JPA/Hibernate Guide](https://www.baeldung.com/jpa-hibernate-difference)
-
-### Tutorials & Learning
-- [REST API Best Practices](https://restfulapi.net/)
-- [Spring Boot Tutorial](https://www.baeldung.com/spring-boot)
-- [Database Relationships](https://www.baeldung.com/jpa-relationship-types)
-- [Maven Guide](https://maven.apache.org/guides/getting-started/)
-
-### Tools
-- [Spring Initializr](https://start.spring.io/) – Bootstrap Spring projects
-- [Postman](https://www.postman.com/) – API testing
-- [IntelliJ IDEA Community](https://www.jetbrains.com/idea/) – IDE
+For issues, questions, or suggestions:
+- Open an GitHub issue
+- Check existing documentation
+- Review QUICK_REFERENCE.md for common commands
 
 ---
 
-## 💡 Next Steps
-
-**Recommended Path:**
-
-1. ✅ **Start here:** Clone and run Phase 1 locally
-2. 📖 **Read:** [PHASE_2_IMPLEMENTATION_GUIDE.md](docs/PHASE_2_IMPLEMENTATION_GUIDE.md)
-3. 💻 **Build:** Implement Phase 2 using the step-by-step guide
-4. 🧪 **Test:** Run full test suite (`mvn test`)
-5. 📤 **Push:** Commit to GitHub
-6. 📅 **Continue:** Start Phase 3 (Match Scoring)
-
----
-
-## 📧 Support & Questions
-
-- 📖 Check documentation files first
-- 🐛 File issues on GitHub
-- 💬 Review code comments for implementation details
-- 🔍 Check existing issues before creating new ones
-
----
-
-## 🎯 Quick Command Reference
-
-```bash
-# Clone and setup
-git clone <repo> && cd fantasy-football && mvn clean install
-
-# Run application
-mvn spring-boot:run
-
-# Run tests
-mvn test
-
-# Test specific endpoint
-curl http://localhost:8080/players | jq
-
-# Build for production
-mvn clean package
-
-# View H2 console
-# Open: http://localhost:8080/h2-console
-```
-
----
-
-## 🏆 Project Milestones
-
-- ✅ **Milestone 1 (Phase 1):** Core REST API with player data
-- 🔄 **Milestone 2 (Phase 2):** League and team management (In Progress)
-- 📅 **Milestone 3 (Phase 3):** Fantasy points calculation
-- 🎨 **Milestone 4 (Phase 4):** Frontend and automation tests
-
----
-
-<div align="center">
-
-### Built with ❤️ as a learning project
-
-**Stars** | **Forks** | **Contributors** | **License**  
-:---:|:---:|:---:|:---:  
-![Stars](https://img.shields.io/github/stars/yourusername/fantasy-football?style=social) | ![Forks](https://img.shields.io/github/forks/yourusername/fantasy-football?style=social) | ![Contributors](https://img.shields.io/github/contributors/yourusername/fantasy-football) | ![License](https://img.shields.io/badge/license-MIT-blue)
-
-</div>
-
----
-
-**Last Updated:** January 2025  
-**Current Phase:** Phase 1 Complete ✅ | Phase 2 Ready to Build 🚀
+**Last Updated:** March 15, 2025  
+**Status:** Active Development ✅  
+**Next Phase:** Phase 3 - Match Statistics & Fantasy Points Calculation
